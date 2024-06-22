@@ -315,7 +315,7 @@ int main(int argc, char *argv[]) {
                         lines[curline][x] = '\0';
 
                         x = 0;
-                    } else if (commandcache[1] == 's') {
+                    } else if (commandcache[1] == 'w') {
                         bool isnumber = true;
                         for (size_t i = 2; i < commandi; i++) {
                             if (commandcache[i] < '0' || commandcache[i] > '9') {
