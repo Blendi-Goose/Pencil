@@ -1,7 +1,7 @@
 compiler=gcc
-compiler_flags=-lncurses
+compiler_flags=-O3 -lncurses
 linker=gcc
-linker_flags=-lncurses
+linker_flags=-O3 -lncurses
 
 all: main.o
 	$(linker) $(linker_flags) main.o -o pencil
