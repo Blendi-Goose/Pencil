@@ -19,5 +19,5 @@ to modify the text use any of these commands:
 anything that does not start with any of these commands will simply be added at the cursor as regular text.
 
 ## Known Issues
-can't save as another name
-can't scroll to the right on a big line
+- can't save as another name
+- can't scroll to the right on a big line
