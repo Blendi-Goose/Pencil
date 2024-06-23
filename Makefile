@@ -16,7 +16,7 @@ else
 endif
 linker_flags=-O3 -lncurses
 
-all: main.o
+pencil: main.o
 	$(linker) $(linker_flags) main.o -o pencil
 
 main.o: main.c

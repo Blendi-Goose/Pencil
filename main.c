@@ -545,5 +545,7 @@ int main(int argc, char *argv[]) {
     }
     free(lines);
 
+    printf("Pencil closed successfully\n");
+
     return 0;
 }
