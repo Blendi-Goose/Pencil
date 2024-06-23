@@ -20,5 +20,4 @@ anything that does not start with any of these commands will simply be added at 
 
 ## Known Issues
 - can't save as another name
-- can't scroll to the right on a big line
 - pencil currently does not handle tabs correctly

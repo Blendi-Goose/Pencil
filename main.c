@@ -4,6 +4,33 @@
 #include <string.h>
 #include <stdbool.h>
 
+char* stringbuffer;
+size_t stringbuffersize = 0;
+
+size_t min(size_t a, size_t b) {
+    return (a < b) ? a : b;
+}
+
+void renderCutoffStr(int y, int x, char* str, int cap, signed long xoffset) {
+    
+    if (cap > stringbuffersize) {
+        stringbuffer = realloc(stringbuffer,cap*sizeof(char));
+        stringbuffersize = cap;
+    }
+
+    size_t strlength = strlen(str);
+
+    size_t copyamount = min(cap,strlength-xoffset);
+
+    char* startpos = str + xoffset;
+
+    memcpy(stringbuffer, startpos, copyamount*sizeof(char));
+
+    stringbuffer[copyamount] = '\0';
+
+    mvaddstr(y,x,stringbuffer);
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         printf("Usage: %s <filename>\n", argv[0]);
@@ -143,13 +170,26 @@ int main(int argc, char *argv[]) {
 
         signed long offset = y-center;
 
+        signed long xoffset = 0;
+        size_t linelen = linelengths[y];
+
+        // if (linelen > width) {
+            int xcutoff = width/2;
+            xoffset = x - xcutoff;
+        // }
+
+        if (xoffset < 0) {
+            xoffset = 0;
+        }
+
         if (offset < 0) {
             offset = 0;
         }
 
         for (size_t i = 0; i < height-2 && i < linecount; i++) {
             size_t ypos = i+offset;
-            mvaddstr(i, 0, (ypos >= 0 && ypos < linecount) ? lines[ypos] : "");
+            // mvaddstr(i, 0, (ypos >= 0 && ypos < linecount) ? lines[ypos] : "");
+            renderCutoffStr(i,0,(ypos >= 0 && ypos < linecount) ? lines[ypos] : "",width,xoffset);
         }
 
         mvaddstr(height-1, 0, commandtitle);
@@ -161,7 +201,7 @@ int main(int argc, char *argv[]) {
 
         refresh();
 
-        move(y - offset, x);
+        move(y - offset, x - xoffset);
 
         int character = getch();
 
@@ -532,6 +572,10 @@ int main(int argc, char *argv[]) {
         }
 
         clear();
+    }
+
+    if (stringbuffersize > 0) {
+        free(stringbuffer);
     }
 
     free(error);
