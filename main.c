@@ -55,6 +55,16 @@ int main(int argc, char *argv[]) {
     // funky loops
     size_t i = 0;
     size_t index = 0;
+    if (size == 0) {
+        lines[i] = malloc(1);
+        if (lines[i] == NULL) {
+            printf("Error: could not allocate memory\n");
+            return 1;
+        }
+        lines[i][0] = '\0';
+        linelengths[i] = 0;
+        i++;
+    }
     while (index < size) {
         size_t start = index;
         while (index < size && buffer[index] != '\n') {
