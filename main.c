@@ -12,7 +12,6 @@ size_t min(size_t a, size_t b) {
 }
 
 void renderCutoffStr(int y, int x, char* str, int cap, signed long xoffset) {
-    
     if (cap > stringbuffersize) {
         stringbuffer = realloc(stringbuffer,cap*sizeof(char));
         stringbuffersize = cap;
@@ -252,79 +251,83 @@ int main(int argc, char *argv[]) {
                             number = 1;
                         }
 
-
-                        // backspace number of characters
-                        // first, remove characters to the left of cursor
-                        // then, move characters to the right of cursor to the left
-                        // then update linelengths
-                        // then move cursor
-                        // REMEMBER TO CARE ABOUT NEWLINES!!!
-                        for (size_t po = 0; po < number; po++) {
-                            if (x > 0) {
-                                // remove char
-                                size_t curline = y;
-                                size_t oldsize = linelengths[curline];
-                                size_t newsize = oldsize - 1;
-                                for (size_t k = x; k < oldsize; k++) {
-                                    lines[curline][k-1] = lines[curline][k];
-                                }
-                                lines[curline] = realloc(lines[curline], newsize + 1);
-                                if (lines[curline] == NULL) {
-                                    clear();
-                                    endwin();
-                                    printf("Error: could not allocate memory\n");
-                                    return 1;
-                                }
-                                linelengths[curline] = newsize;
-                                lines[curline][newsize] = '\0';
-
-                                x--;
-                            } else {
-                                if (y > 0) {
-                                    // remove newline
+                        if (number > 10000) {
+                            strcpy(error,"Slow down there! you cannot do more than 10000 at once!");
+                            errori = strlen(error);
+                        } else {
+                            // backspace number of characters
+                            // first, remove characters to the left of cursor
+                            // then, move characters to the right of cursor to the left
+                            // then update linelengths
+                            // then move cursor
+                            // REMEMBER TO CARE ABOUT NEWLINES!!!
+                            for (size_t po = 0; po < number; po++) {
+                                if (x > 0) {
+                                    // remove char
                                     size_t curline = y;
-                                    size_t prevline = y-1;
-
-                                    size_t cursize = linelengths[curline];
-                                    size_t prevsize = linelengths[prevline];
-
-                                    size_t newsize = cursize + prevsize;
-                                    lines[prevline] = realloc(lines[prevline], newsize + 1);
-                                    if (lines[prevline] == NULL) {
+                                    size_t oldsize = linelengths[curline];
+                                    size_t newsize = oldsize - 1;
+                                    for (size_t k = x; k < oldsize; k++) {
+                                        lines[curline][k-1] = lines[curline][k];
+                                    }
+                                    lines[curline] = realloc(lines[curline], newsize + 1);
+                                    if (lines[curline] == NULL) {
                                         clear();
                                         endwin();
                                         printf("Error: could not allocate memory\n");
                                         return 1;
                                     }
+                                    linelengths[curline] = newsize;
+                                    lines[curline][newsize] = '\0';
 
-                                    for (size_t k = 0; k < cursize; k++) {
-                                        lines[prevline][prevsize+k] = lines[curline][k];
+                                    x--;
+                                } else {
+                                    if (y > 0) {
+                                        // remove newline
+                                        size_t curline = y;
+                                        size_t prevline = y-1;
+
+                                        size_t cursize = linelengths[curline];
+                                        size_t prevsize = linelengths[prevline];
+
+                                        size_t newsize = cursize + prevsize;
+                                        lines[prevline] = realloc(lines[prevline], newsize + 1);
+                                        if (lines[prevline] == NULL) {
+                                            clear();
+                                            endwin();
+                                            printf("Error: could not allocate memory\n");
+                                            return 1;
+                                        }
+
+                                        for (size_t k = 0; k < cursize; k++) {
+                                            lines[prevline][prevsize+k] = lines[curline][k];
+                                        }
+
+                                        lines[prevline][newsize] = '\0';
+                                        linelengths[prevline] = newsize;
+                                        
+                                        free(lines[curline]);
+
+                                        for (size_t k = curline; k < linecount-1; k++) {
+                                            lines[k] = lines[k+1];
+                                            linelengths[k] = linelengths[k+1];
+                                        }
+
+                                        linecount--;
+
+                                        lines = realloc(lines, linecount*sizeof(char*));
+                                        linelengths = realloc(linelengths, linecount*sizeof(size_t));
+
+                                        if (lines == NULL || linelengths == NULL) {
+                                            clear();
+                                            endwin();
+                                            printf("Error: could not allocate memory\n");
+                                            return 1;
+                                        }
+
+                                        y--;
+                                        x = prevsize;
                                     }
-
-                                    lines[prevline][newsize] = '\0';
-                                    linelengths[prevline] = newsize;
-                                    
-                                    free(lines[curline]);
-
-                                    for (size_t k = curline; k < linecount-1; k++) {
-                                        lines[k] = lines[k+1];
-                                        linelengths[k] = linelengths[k+1];
-                                    }
-
-                                    linecount--;
-
-                                    lines = realloc(lines, linecount*sizeof(char*));
-                                    linelengths = realloc(linelengths, linecount*sizeof(size_t));
-
-                                    if (lines == NULL || linelengths == NULL) {
-                                        clear();
-                                        endwin();
-                                        printf("Error: could not allocate memory\n");
-                                        return 1;
-                                    }
-
-                                    y--;
-                                    x = prevsize;
                                 }
                             }
                         }
@@ -409,30 +412,35 @@ int main(int argc, char *argv[]) {
                             number = 1;
                         }
 
-                        size_t curline = y;
-                        size_t oldsize = linelengths[curline];
-                        size_t newsize = oldsize + number;
-                        lines[curline] = realloc(lines[curline], newsize + 1);
-                        if (lines[curline] == NULL) {
-                            clear();
-                            endwin();
-                            printf("Error: could not allocate memory\n");
-                            return 1;
+                        if (number > 10000) {
+                            strcpy(error,"Slow down there! you cannot do more than 10000 at once!");
+                            errori = strlen(error);
+                        } else {
+                            size_t curline = y;
+                            size_t oldsize = linelengths[curline];
+                            size_t newsize = oldsize + number;
+                            lines[curline] = realloc(lines[curline], newsize + 1);
+                            if (lines[curline] == NULL) {
+                                clear();
+                                endwin();
+                                printf("Error: could not allocate memory\n");
+                                return 1;
+                            }
+                            
+                            for (size_t i = oldsize; i > x; i--) {
+                                lines[curline][i+number-1] = lines[curline][i-1];
+                            }
+
+                            for (size_t i = 0; i < number; i++) {
+                                lines[curline][x+i] = ' ';
+                            }
+
+                            linelengths[curline] = newsize;
+
+                            lines[curline][newsize] = '\0';
+
+                            x += number;
                         }
-                        
-                        for (size_t i = oldsize; i > x; i--) {
-                            lines[curline][i+number-1] = lines[curline][i-1];
-                        }
-
-                        for (size_t i = 0; i < number; i++) {
-                            lines[curline][x+i] = ' ';
-                        }
-
-                        linelengths[curline] = newsize;
-
-                        lines[curline][newsize] = '\0';
-
-                        x += number;
                     } else if (commandcache[1] == 't') {
                         bool isnumber = true;
                         for (size_t i = 2; i < commandi; i++) {
@@ -455,32 +463,37 @@ int main(int argc, char *argv[]) {
                             number = 1;
                         }
 
-                        number *= 4; // tab is just 4 spaces lol
+                        if (number > 10000) {
+                            strcpy(error,"Slow down there! you cannot do more than 10000 at once!");
+                            errori = strlen(error);
+                        } else {
+                            number *= 4; // tab is just 4 spaces lol
 
-                        size_t curline = y;
-                        size_t oldsize = linelengths[curline];
-                        size_t newsize = oldsize + number;
-                        lines[curline] = realloc(lines[curline], newsize + 1);
-                        if (lines[curline] == NULL) {
-                            clear();
-                            endwin();
-                            printf("Error: could not allocate memory\n");
-                            return 1;
+                            size_t curline = y;
+                            size_t oldsize = linelengths[curline];
+                            size_t newsize = oldsize + number;
+                            lines[curline] = realloc(lines[curline], newsize + 1);
+                            if (lines[curline] == NULL) {
+                                clear();
+                                endwin();
+                                printf("Error: could not allocate memory\n");
+                                return 1;
+                            }
+                            
+                            for (size_t i = oldsize; i > x; i--) {
+                                lines[curline][i+number-1] = lines[curline][i-1];
+                            }
+
+                            for (size_t i = 0; i < number; i++) {
+                                lines[curline][x+i] = ' ';
+                            }
+
+                            linelengths[curline] = newsize;
+
+                            lines[curline][newsize] = '\0';
+
+                            x += number;
                         }
-                        
-                        for (size_t i = oldsize; i > x; i--) {
-                            lines[curline][i+number-1] = lines[curline][i-1];
-                        }
-
-                        for (size_t i = 0; i < number; i++) {
-                            lines[curline][x+i] = ' ';
-                        }
-
-                        linelengths[curline] = newsize;
-
-                        lines[curline][newsize] = '\0';
-
-                        x += number;
                     } else {
                         justadd = true;
                     }
