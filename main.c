@@ -333,63 +333,90 @@ int main(int argc, char *argv[]) {
                         }
                     } else if (commandcache[1] == 'n') {
                         // new line woohoo
-
-                        size_t curline = y;
-
-                        linecount++;
-
-                        lines = realloc(lines, linecount*sizeof(char*));
-                        linelengths = realloc(linelengths, linecount*sizeof(size_t));
-
-                        if (lines == NULL || linelengths == NULL) {
-                            clear();
-                            endwin();
-                            printf("Error: could not allocate memory\n");
-                            return 1;
+                        bool isnumber = true;
+                        for (size_t i = 2; i < commandi; i++) {
+                            if (commandcache[i] < '0' || commandcache[i] > '9') {
+                                isnumber = false;
+                                break;
+                            }
                         }
 
-                        for (size_t j = linecount-1; j > curline+1; j--) {
-                            lines[j] = lines[j-1];
-                            linelengths[j] = linelengths[j-1];
+                        if (commandi == 2) {
+                            isnumber = false;
                         }
 
-                        y++;
-
-                        lines[y] = malloc(1*sizeof(char));
-                        lines[y][0] = '\0';
-
-                        // copy all of the characters to the right of the cursor to the new line
-
-                        size_t addedsize = linelengths[curline] - x;
-                        lines[y] = realloc(lines[y], addedsize + 1);
-                        if (lines[y] == NULL) {
-                            clear();
-                            endwin();
-                            printf("Error: could not allocate memory\n");
-                            return 1;
+                        size_t number = 0;
+                        if (isnumber) {
+                            for (size_t i = 2; i < commandi; i++) {
+                                number = number*10 + (commandcache[i] - '0');
+                            }
+                        } else {
+                            number = 1;
                         }
 
-                        for (size_t j = 0; j < addedsize; j++) {
-                            lines[y][j] = lines[curline][x+j];
+                        if (number > 10000) {
+                            strcpy(error,"Slow down there! you cannot do more than 10000 at once!");
+                            errori = strlen(error);
+                        } else {
+                            for (size_t j = 0; j < number; j++) {
+                                size_t curline = y;
+
+                                linecount++;
+
+                                lines = realloc(lines, linecount*sizeof(char*));
+                                linelengths = realloc(linelengths, linecount*sizeof(size_t));
+
+                                if (lines == NULL || linelengths == NULL) {
+                                    clear();
+                                    endwin();
+                                    printf("Error: could not allocate memory\n");
+                                    return 1;
+                                }
+
+                                for (size_t j = linecount-1; j > curline+1; j--) {
+                                    lines[j] = lines[j-1];
+                                    linelengths[j] = linelengths[j-1];
+                                }
+
+                                y++;
+
+                                lines[y] = malloc(1*sizeof(char));
+                                lines[y][0] = '\0';
+
+                                // copy all of the characters to the right of the cursor to the new line
+
+                                size_t addedsize = linelengths[curline] - x;
+                                lines[y] = realloc(lines[y], addedsize + 1);
+                                if (lines[y] == NULL) {
+                                    clear();
+                                    endwin();
+                                    printf("Error: could not allocate memory\n");
+                                    return 1;
+                                }
+
+                                for (size_t j = 0; j < addedsize; j++) {
+                                    lines[y][j] = lines[curline][x+j];
+                                }
+                                
+                                lines[y][addedsize] = '\0';
+
+                                linelengths[y] = addedsize;
+
+                                lines[curline] = realloc(lines[curline], x + 1);
+                                if (lines[curline] == NULL) {
+                                    clear();
+                                    endwin();
+                                    printf("Error: could not allocate memory\n");
+                                    return 1;
+                                }
+
+                                linelengths[curline] = x;
+
+                                lines[curline][x] = '\0';
+
+                                x = 0;
+                            }
                         }
-                        
-                        lines[y][addedsize] = '\0';
-
-                        linelengths[y] = addedsize;
-
-                        lines[curline] = realloc(lines[curline], x + 1);
-                        if (lines[curline] == NULL) {
-                            clear();
-                            endwin();
-                            printf("Error: could not allocate memory\n");
-                            return 1;
-                        }
-
-                        linelengths[curline] = x;
-
-                        lines[curline][x] = '\0';
-
-                        x = 0;
                     } else if (commandcache[1] == 'w') {
                         bool isnumber = true;
                         for (size_t i = 2; i < commandi; i++) {
@@ -493,6 +520,158 @@ int main(int argc, char *argv[]) {
                             lines[curline][newsize] = '\0';
 
                             x += number;
+                        }
+                    } else if (commandcache[1] == 'r') {
+                        bool isnumber = true;
+                        for (size_t i = 2; i < commandi; i++) {
+                            if (commandcache[i] < '0' || commandcache[i] > '9') {
+                                isnumber = false;
+                                break;
+                            }
+                        }
+
+                        if (commandi == 2) {
+                            isnumber = false;
+                        }
+
+                        size_t number = 0;
+                        if (isnumber) {
+                            for (size_t i = 2; i < commandi; i++) {
+                                number = number*10 + (commandcache[i] - '0');
+                            }
+                        } else {
+                            number = 1;
+                        }
+
+                        if (number > 10000) {
+                            strcpy(error,"Slow down there! you cannot do more than 10000 at once!");
+                            errori = strlen(error);
+                        } else {
+                            for (size_t j = 0; j < number; j++) {
+                                if (x < linelengths[y]) {
+                                    x++;
+                                } else if (x == linelengths[y]) {
+                                    if (y < linecount-1) {
+                                        y++;
+                                        x = 0;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } else if (commandcache[1] == 'l') {
+                        bool isnumber = true;
+                        for (size_t i = 2; i < commandi; i++) {
+                            if (commandcache[i] < '0' || commandcache[i] > '9') {
+                                isnumber = false;
+                                break;
+                            }
+                        }
+
+                        if (commandi == 2) {
+                            isnumber = false;
+                        }
+
+                        size_t number = 0;
+                        if (isnumber) {
+                            for (size_t i = 2; i < commandi; i++) {
+                                number = number*10 + (commandcache[i] - '0');
+                            }
+                        } else {
+                            number = 1;
+                        }
+
+                        if (number > 10000) {
+                            strcpy(error,"Slow down there! you cannot do more than 10000 at once!");
+                            errori = strlen(error);
+                        } else {
+                            for (size_t j = 0; j < number; j++) {
+                                if (x > 0) {
+                                    x--;
+                                } else if (x == 0) {
+                                    if (y > 0) {
+                                        y--;
+                                        x = linelengths[y];
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } else if (commandcache[1] == 'u') {
+                        bool isnumber = true;
+                        for (size_t i = 2; i < commandi; i++) {
+                            if (commandcache[i] < '0' || commandcache[i] > '9') {
+                                isnumber = false;
+                                break;
+                            }
+                        }
+
+                        if (commandi == 2) {
+                            isnumber = false;
+                        }
+
+                        size_t number = 0;
+                        if (isnumber) {
+                            for (size_t i = 2; i < commandi; i++) {
+                                number = number*10 + (commandcache[i] - '0');
+                            }
+                        } else {
+                            number = 1;
+                        }
+
+                        if (number > 10000) {
+                            strcpy(error,"Slow down there! you cannot do more than 10000 at once!");
+                            errori = strlen(error);
+                        } else {
+                            for (size_t j = 0; j < number; j++) {
+                                if (y > 0) {
+                                    y--;
+                                    if (x > linelengths[y]) {
+                                        x = linelengths[y];
+                                    }
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (commandcache[1] == 'd') {
+                        bool isnumber = true;
+                        for (size_t i = 2; i < commandi; i++) {
+                            if (commandcache[i] < '0' || commandcache[i] > '9') {
+                                isnumber = false;
+                                break;
+                            }
+                        }
+
+                        if (commandi == 2) {
+                            isnumber = false;
+                        }
+
+                        size_t number = 0;
+                        if (isnumber) {
+                            for (size_t i = 2; i < commandi; i++) {
+                                number = number*10 + (commandcache[i] - '0');
+                            }
+                        } else {
+                            number = 1;
+                        }
+
+                        if (number > 10000) {
+                            strcpy(error,"Slow down there! you cannot do more than 10000 at once!");
+                            errori = strlen(error);
+                        } else {
+                            for (size_t j = 0; j < number; j++) {
+                                if (y < linecount-1) {
+                                    y++;
+                                    if (x > linelengths[y]) {
+                                        x = linelengths[y];
+                                    }
+                                } else {
+                                    break;
+                                }
+                            }
                         }
                     } else {
                         justadd = true;
