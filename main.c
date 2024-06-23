@@ -99,6 +99,10 @@ int main(int argc, char *argv[]) {
     char* commandtitle = "Pencil Command: ";
     size_t commandtitlesize = strlen(commandtitle);
 
+    char* error = malloc(256*sizeof(char));
+    size_t errori = 0;
+    size_t errorsize = 256;
+
     bool oldkeypadness = is_keypad;
     keypad(stdscr, TRUE);
     while (true) {
@@ -127,6 +131,10 @@ int main(int argc, char *argv[]) {
 
         mvaddstr(height-1, 0, commandtitle);
         mvaddstr(height-1, commandtitlesize, commandcache);
+        
+        if (errori > 0) {
+            mvaddstr(height-2, 0, error);
+        }
 
         refresh();
 
@@ -149,7 +157,8 @@ int main(int argc, char *argv[]) {
                         } else {
                             FILE *fptr = fopen(argv[1], "w");
                             if (fptr == NULL) {
-                                justadd = true;
+                                strcpy(error, "Error: could not open file for writing");
+                                errori = strlen(error);
                             } else {
                                 for (size_t i = 0; i < linecount; i++) {
                                     fprintf(fptr, (i == linecount-1) ? "%s" : "%s\n", lines[i]);
@@ -501,6 +510,8 @@ int main(int argc, char *argv[]) {
 
         clear();
     }
+
+    free(error);
 
     keypad(stdscr, oldkeypadness);
 
