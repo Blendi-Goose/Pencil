@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
     size_t commandi = 0;
     size_t commandsize = 256;
 
-    char* commandtitle = "Pencil Command: ";
+    char* commandtitle = "Command: ";
     size_t commandtitlesize = strlen(commandtitle);
 
     char* error = malloc(256*sizeof(char));
@@ -204,7 +204,7 @@ int main(int argc, char *argv[]) {
         mvaddstr(height-1, commandtitlesize, commandcache);
         
         if (errori > 0) {
-            mvaddstr(height-2, 0, error);
+            renderCutoffStr(height-2, 0, error,width,0);
         }
 
         refresh();
