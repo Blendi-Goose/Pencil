@@ -10,31 +10,36 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    bool is_newfile = false;
     FILE *fptr = fopen(argv[1], "r");
-    if (fptr == NULL) {
-        printf("Error: could not open file %s\n", argv[1]);
-        return 1;
-    }
+    char *buffer;
+    size_t size;
+    if (fptr != NULL) {
+        fseek(fptr, 0L, SEEK_END);
+        size = ftell(fptr);
+        fseek(fptr,0L,SEEK_SET);
 
-    fseek(fptr, 0L, SEEK_END);
-    size_t size = ftell(fptr);
-    fseek(fptr,0L,SEEK_SET);
+        buffer = malloc(size);
 
-    char *buffer = malloc(size);
+        if (buffer == NULL) {
+            printf("Error: could not allocate memory\n");
+            return 1;
+        }
 
-    if (buffer == NULL) {
-        printf("Error: could not allocate memory\n");
-        return 1;
-    }
+        if (fread(buffer, sizeof(char), size, fptr) != size) {
+            printf("Error: could not read file\n");
+            free(buffer);
+            fclose(fptr);
+            return 1;
+        }
 
-    if (fread(buffer, sizeof(char), size, fptr) != size) {
-        printf("Error: could not read file\n");
-        free(buffer);
         fclose(fptr);
-        return 1;
+    } else {
+        is_newfile = true;
+        buffer = malloc(1);
+        buffer[0] = '\0';
+        size = 0;
     }
-
-    fclose(fptr);
 
     size_t linecount = 1;
 
@@ -112,6 +117,14 @@ int main(int argc, char *argv[]) {
     char* error = malloc(256*sizeof(char));
     size_t errori = 0;
     size_t errorsize = 256;
+
+    if (is_newfile) {
+        strcpy(error, "You're creating a new file! /s to save, /q to quit");
+        errori = strlen(error);
+    } else {
+        strcpy(error, "/s to save, /q to quit");
+        errori = strlen(error);
+    }
 
     bool oldkeypadness = is_keypad;
     keypad(stdscr, TRUE);
