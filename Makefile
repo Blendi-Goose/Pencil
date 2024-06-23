@@ -1,7 +1,15 @@
+ifeq ($(PREFIX),)
+    PREFIX := /usr/local
+endif
+
 compiler=gcc
 compiler_flags=-O3 -lncurses
 linker=gcc
 linker_flags=-O3 -lncurses
+
+install: pencil
+	install -d $(DESTDIR)$(PREFIX)/bin/
+	install -m 755 pencil $(DESTDIR)$(PREFIX)/bin/
 
 all: main.o
 	$(linker) $(linker_flags) main.o -o pencil
