@@ -158,10 +158,17 @@ int main(int argc, char *argv[]) {
         int width = getmaxx(window);
         int height = getmaxy(window);
 
-        if (height < 3) {
+        if (height < 3) { // atleast enough space to have 1 line of the file
             clear();
             endwin();
-            printf("Error: terminal too small\n");
+            printf("Error: terminal not tall enough\n");
+            return 1;
+        }
+
+        if (width < (commandtitlesize+2)) { // enough space for a simple command
+            clear();
+            endwin();
+            printf("Error: terminal not wide enough\n");
             return 1;
         }
 
