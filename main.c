@@ -11,9 +11,15 @@ size_t min(size_t a, size_t b) {
     return (a < b) ? a : b;
 }
 
-void renderCutoffStr(int y, int x, char* str, int cap, signed long xoffset) {
+bool renderCutoffStr(int y, int x, char* str, int cap, signed long xoffset) {
     if (cap > stringbuffersize) {
         stringbuffer = realloc(stringbuffer,cap*sizeof(char));
+        if (stringbuffer == NULL) {
+            clear();
+            endwin();
+            printf("Error: couldn't allocate memory\n");
+            return false;
+        }
         stringbuffersize = cap;
     }
 
@@ -30,6 +36,8 @@ void renderCutoffStr(int y, int x, char* str, int cap, signed long xoffset) {
 
         mvaddstr(y,x,stringbuffer);
     }
+
+    return true;
 }
 
 int main(int argc, char *argv[]) {
@@ -197,14 +205,18 @@ int main(int argc, char *argv[]) {
         for (size_t i = 0; i < height-2 && i < linecount; i++) {
             size_t ypos = i+offset;
             // mvaddstr(i, 0, (ypos >= 0 && ypos < linecount) ? lines[ypos] : "");
-            renderCutoffStr(i,0,(ypos >= 0 && ypos < linecount) ? lines[ypos] : "",width,xoffset);
+            if (!renderCutoffStr(i,0,(ypos >= 0 && ypos < linecount) ? lines[ypos] : "",width,xoffset)) {
+                return 1;
+            }
         }
 
         mvaddstr(height-1, 0, commandtitle);
         mvaddstr(height-1, commandtitlesize, commandcache);
         
         if (errori > 0) {
-            renderCutoffStr(height-2, 0, error,width,0);
+            if (!renderCutoffStr(height-2, 0, error,width,0)) {
+                return 1;
+            }
         }
 
         refresh();
