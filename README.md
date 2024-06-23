@@ -25,3 +25,4 @@ anything that does not start with any of these commands will simply be added at 
 ## Known Issues
 - can't save as another name
 - pencil currently does not handle tabs correctly
+- can't really handle anything outside ascii properly

@@ -19,15 +19,17 @@ void renderCutoffStr(int y, int x, char* str, int cap, signed long xoffset) {
 
     size_t strlength = strlen(str);
 
-    size_t copyamount = min(cap,strlength-xoffset);
+    if (xoffset < strlength) {
+        size_t copyamount = min(cap,strlength-xoffset);
 
-    char* startpos = str + xoffset;
+        char* startpos = str + xoffset;
 
-    memcpy(stringbuffer, startpos, copyamount*sizeof(char));
+        memcpy(stringbuffer, startpos, copyamount*sizeof(char));
 
-    stringbuffer[copyamount] = '\0';
+        stringbuffer[copyamount] = '\0';
 
-    mvaddstr(y,x,stringbuffer);
+        mvaddstr(y,x,stringbuffer);
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -756,7 +758,7 @@ int main(int argc, char *argv[]) {
                     x = linelengths[y];
                 }
             }
-        } else if (character != '\n' && character != 127) {
+        } else if (character < 127) {
             if (character == '\t') {
                 if (commandi < commandsize-3) {
                     for (char i = 0; i < 4; i++) {
