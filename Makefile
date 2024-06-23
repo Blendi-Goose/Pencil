@@ -2,9 +2,18 @@ ifeq ($(PREFIX),)
     PREFIX := /usr/local
 endif
 
-compiler=gcc
+ifeq ($(OS),Windows_NT)
+	compiler=clang
+else
+	compiler=gcc
+endif
 compiler_flags=-O3 -lncurses
-linker=gcc
+
+ifeq ($(OS),Windows_NT)
+	linker=clang
+else
+	linker=gcc
+endif
 linker_flags=-O3 -lncurses
 
 all: main.o
