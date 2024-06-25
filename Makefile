@@ -17,10 +17,10 @@ endif
 linker_flags=-O3 -lncurses
 
 pencil: main.o
-	$(linker) $(linker_flags) main.o -o pencil
+	$(linker) main.o $(linker_flags) -o pencil
 
 main.o: main.c
-	$(compiler) $(compiler_flags) -c main.c -o main.o
+	$(compiler) -c main.c $(compiler_flags) -o main.o
 
 install: pencil
 	install -d $(DESTDIR)$(PREFIX)/bin/
